@@ -1,8 +1,8 @@
-﻿# ONNI House
+# ONNI House
 
 A Next.js App Router hospitality site for ONNI House. Run `npm ci` and `npm run dev`. Run `npm run build` and `npm start` for a production preview.
 
-The landing page introduces the Tanjung Duren house, lets guests explore menu highlights and the atmosphere, then connects them to the appropriate menu, directions, and reservation channel. Reservation actions open the venue's phone or WhatsApp contact.
+The landing page introduces the umbrella brand in black and white. Each location has a dedicated route, palette and atmosphere, with its own menu, directions and reservation links. Tanjung Duren also features the interactive menu showcase. Reservation actions open the venue's phone or WhatsApp contact.
 
 Editorial content follows the supplied research. Official menu links and contact details live in `components/content.ts`. Pricing that appears on the site is taken from the Jakarta booklet, and the item from the opening menu is identified as archival.
 

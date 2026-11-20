@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Flower2, MapPin, Menu, Phone, X } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, Flower2, Menu, X } from "lucide-react";
 import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { locations, menu, scenes } from "./content";
+import { branches, menu, scenes } from "./content";
 
 const motionPreference = "(prefers-reduced-motion: reduce)";
 
@@ -23,9 +24,11 @@ function useReducedMotion() {
 }
 
 const easing = [0.22, 1, 0.36, 1] as const;
-const nav = [{ title: "Our story", href: "#story" }, { title: "Menu", href: "#menu" }, { title: "Atmosphere", href: "#atmosphere" }];
-
-export function Navigation() {
+export function Navigation({ isBranch = false, hasMenuShowcase = false }: { isBranch?: boolean; hasMenuShowcase?: boolean }) {
+  const nav = isBranch
+    ? [{ title: "ONNI Brand", href: "/" }, { title: "The house", href: "#story" }, ...(hasMenuShowcase ? [{ title: "Menu", href: "#menu" }] : []), { title: "Other locations", href: "#visit" }]
+    : [{ title: "Our story", href: "#story" }, { title: "Locations", href: "#visit" }, { title: "Atmosphere", href: "#atmosphere" }];
+  const visit = isBranch ? "#branch-visit" : "#visit";
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
   const reduced = useReducedMotion();
@@ -47,14 +50,14 @@ export function Navigation() {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <a className="wordmark" href="#top" onClick={() => setOpen(false)}>onni<span>HOUSE</span></a>
-        <nav aria-label="Main" className="desktop-nav">{nav.map((item) => <a key={item.href} href={item.href}>{item.title}</a>)}</nav>
-        <MagneticLink className="button header-visit" href="#visit">Plan a visit</MagneticLink>
+        <Link className="wordmark" href={isBranch ? "/" : "#top"} onClick={() => setOpen(false)}>onni<span>HOUSE</span></Link>
+        <nav aria-label="Main" className="desktop-nav">{nav.map((item) => <Link key={item.href} href={item.href}>{item.title}</Link>)}</nav>
+        <MagneticLink className="button header-visit" href={visit}>Plan a visit</MagneticLink>
         <button ref={toggle} className="nav-toggle icon-button" type="button" aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} aria-controls={open ? "mobile-nav" : undefined} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>
       </div>
       <AnimatePresence>
         {open && <motion.nav id="mobile-nav" aria-label="Mobile" className="mobile-nav" initial={reduced ? false : { opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : .24 }}>
-          {[...nav, { title: "Plan a visit", href: "#visit" }].map((item) => <a key={item.href} href={item.href} onClick={() => setOpen(false)}>{item.title}</a>)}
+          {[...nav, { title: "Plan a visit", href: visit }].map((item) => <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>{item.title}</Link>)}
         </motion.nav>}
       </AnimatePresence>
       {!reduced && <motion.div className="progress" aria-hidden="true" style={{ scaleX: progress }} />}
@@ -79,7 +82,10 @@ function MagneticLink({ href, className, children }: { href: string; className: 
     onPointerLeave={() => { offsetX.set(0); offsetY.set(0); }}>{children}</motion.a>;
 }
 
-export function Hero() {
+export function Hero({ branch }: { branch?: (typeof branches)[number] }) {
+  const title = branch?.title ?? ["Happiness", "in everyday."];
+  const image = branch?.image ?? "florist";
+  const alt = branch?.alt ?? "Illustrative flower studio worktable with roses, cosmos and floral shears";
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -94,16 +100,16 @@ export function Hero() {
   return (
     <section ref={ref} id="top" className="hero" aria-labelledby="hero-title">
       <div className="hero-copy">
-        <p className="eyebrow"><Flower2 size={17} aria-hidden="true" /> TANJUNG DUREN, JAKARTA</p>
-        <h1 id="hero-title"><span className="mask"><motion.span {...line(.04)}>A house</motion.span></span><span className="mask"><motion.em {...line(.12)}>in bloom.</motion.em></span></h1>
+        <p className="eyebrow"><Flower2 size={17} aria-hidden="true" /> {branch?.name ?? "ONNI HOUSE"}</p>
+        <h1 id="hero-title"><span className="mask"><motion.span {...line(.04)}>{title[0]}</motion.span></span><span className="mask"><motion.em {...line(.12)}>{title[1]}</motion.em></span></h1>
         <motion.div initial={reduced ? false : { opacity: .4 }} animate={{ opacity: 1 }} transition={{ delay: reduced ? 0 : .25, duration: .45 }}>
-          <p className="hero-description">A kitchen and flower studio in an old Jakarta home. Come for a meal, take home flowers, or stay a little longer.</p>
-          <MagneticLink href="#menu" className="button hero-button">Explore the menu</MagneticLink>
+          <p className="hero-description">{branch?.description ?? "Kitchen, florist and things for the home. Discover our houses in Jakarta and Surabaya."}</p>
+          <MagneticLink href={branch ? "#branch-visit" : "#visit"} className="button hero-button">{branch ? "Plan a visit" : "Explore our locations"}</MagneticLink>
         </motion.div>
       </div>
       <motion.figure className="hero-image" initial={reduced ? false : { clipPath: "inset(0 0 0 7%)" }} animate={{ clipPath: "inset(0 0 0 0%)" }} transition={{ duration: reduced ? 0 : .95, ease: easing }}>
         <motion.div className="hero-image-fill" style={reduced ? undefined : { y, scale }}>
-          <Image src="/images/entrance.webp" alt="Illustration of a heritage cafe entrance framed by abundant pink and cream flowers" fill preload sizes="(max-width: 760px) 100vw, 63vw" />
+          <Image src={`/images/${image}.webp`} alt={alt} fill preload sizes="(max-width: 760px) 100vw, 63vw" />
         </motion.div>
         <figcaption>THE ONNI HOUSE MOOD <span>ILLUSTRATIVE IMAGERY</span></figcaption>
       </motion.figure>
@@ -116,7 +122,7 @@ export function Reveal({ children, className }: { children: React.ReactNode; cla
   return <motion.figure className={className} initial={reduced ? false : { clipPath: "inset(0 0 9% 0)" }} whileInView={{ clipPath: "inset(0 0 0 0)" }} viewport={{ once: true, amount: .22 }} transition={{ duration: reduced ? 0 : .8, ease: easing }}>{children}</motion.figure>;
 }
 
-export function MenuShowcase() {
+export function MenuShowcase({ menuUrl }: { menuUrl: string }) {
   const [active, setActive] = useState(0);
   const reduced = useReducedMotion();
   const item = menu[active];
@@ -134,7 +140,7 @@ export function MenuShowcase() {
               <span>{entry.label}</span><ChevronRight size={18} aria-hidden="true" />
             </motion.button>)}
           </div>
-          <a className="text-link" href={locations[0].menu} target="_blank" rel="noreferrer">View the full Jakarta menu</a>
+          <a className="text-link" href={menuUrl} target="_blank" rel="noreferrer">View the full Jakarta menu</a>
         </div>
         <div className="menu-feature" aria-live="polite">
           <AnimatePresence initial={false} mode="popLayout">
@@ -188,39 +194,6 @@ export function Gallery() {
         </div>
       </div>
       <div className="gallery-caption"><p aria-live="polite">{scene.title} <span>· Illustrative imagery</span></p><div className="gallery-dots">{scenes.map((entry, index) => <button key={entry.image} type="button" aria-label={entry.title} aria-pressed={index === active} onClick={() => select(index, index > active ? 1 : -1)} />)}</div></div>
-    </section>
-  );
-}
-
-export function Visit() {
-  const [active, setActive] = useState(0);
-  const reduced = useReducedMotion();
-  const place = locations[active];
-
-  return (
-    <section className="visit-section" id="visit">
-      <div className="container visit-grid">
-        <div><p className="eyebrow"><MapPin size={16} aria-hidden="true" /> JAKARTA &amp; SURABAYA</p><h2>Come on <em>over.</em></h2><p>Choose a house to find its hours, menu, and contact details.</p></div>
-        <div className="visit-panel">
-          <div className="locations" aria-label="Choose a location">
-            {["Tanjung Duren", "Surabaya", "Lebak Bulus"].map((title, index) => <button key={title} aria-pressed={index === active} type="button" onClick={() => setActive(index)}>{title}</button>)}
-          </div>
-          <div className="visit-details" aria-live="polite">
-            <AnimatePresence initial={false} mode="wait">
-              <motion.div key={place.name} initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : .23 }}>
-                <h3>{place.name}</h3>
-                <address>{place.address}</address><p>{place.hours}</p>
-                <a className="phone" href={`tel:${place.tel}`}><Phone size={15} /> {place.phone}</a>
-                <div className="visit-actions">
-                  <a className="button" href={place.maps} target="_blank" rel="noreferrer">Get directions</a>
-                  <a className="button secondary" href={place.whatsapp ?? `tel:${place.tel}`} target={place.whatsapp ? "_blank" : undefined} rel={place.whatsapp ? "noreferrer" : undefined}>{place.whatsapp ? "WhatsApp reservations" : "Call to reserve"}</a>
-                  <a className="text-link" href={place.menu} target="_blank" rel="noreferrer">Location menu</a>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }

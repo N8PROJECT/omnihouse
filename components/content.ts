@@ -1,6 +1,6 @@
 const maps = (query: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
-export const locations = [
+const locations = [
   {
     name: "ONNI House Jakarta", area: "Tanjung Duren, Jakarta Barat",
     address: "Jl. Tanjung Duren Utara V No. 242, Jakarta Barat 11470",
@@ -36,3 +36,43 @@ export const scenes = [
   { image: "florist", title: "At the flower studio", alt: "Illustrative arrangement of roses and cosmos on a worktable" },
   { image: "coffee", title: "By the window", alt: "Illustrative window table with coffee, cake and flowers" },
 ];
+export const branches = [
+  {
+    slug: "tanjung-duren",
+    style: "festive",
+    title: ["A house", "in bloom."],
+    description: "The original ONNI House brings the kitchen and flower studio together in an old Tanjung Duren home.",
+    image: "entrance",
+    alt: "Illustrative entrance framed by abundant pink and cream flowers",
+    feature: "A room for every season.",
+    story: "Our first house opened in 2018. Its flowers, tables and seasonal installations change with the occasion, giving the same familiar rooms a new look throughout the year.",
+    detailImage: "florist",
+    detailAlt: "Illustrative florist worktable with hand-cut flowers",
+  },
+  {
+    slug: "surabaya",
+    style: "surabaya",
+    title: ["An afternoon", "on Opak."],
+    description: "A quiet table, a flower shop and things for the home under one roof in Darmo, Surabaya.",
+    image: "coffee",
+    alt: "Illustrative window table with coffee, cake and flowers",
+    feature: "Take a little of the house home.",
+    story: "Opened in 2019, our Surabaya house brought the florist, kitchen and home-living shop together on Jalan Opak. Stop by for a meal and browse the flowers and wares before you head home.",
+    detailImage: "interior",
+    detailAlt: "Illustrative dining room with cane chairs and floral centerpieces",
+  },
+  {
+    slug: "garden-house",
+    style: "garden",
+    title: ["Meet me", "in the garden."],
+    description: "A garden house in Lebak Bulus for a meal among the greenery, flowers to take home and celebrations with the people you love.",
+    image: "interior",
+    alt: "Illustrative garden-facing dining room with arched windows and greenery",
+    feature: "Gather in the green.",
+    story: "A 1990s home in Lebak Bulus became ONNI Garden House in 2024. The original rooms, terrace and garden set the scene for long lunches, intimate celebrations and time outdoors.",
+    detailImage: "entrance",
+    detailAlt: "Illustrative flowering garden and heritage house entrance",
+  },
+].map((branch, index) => ({ ...branch, ...locations[index] }));
+
+export const branchHref = (slug: string) => `/locations/${slug}`;
